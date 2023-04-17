@@ -29,21 +29,14 @@ async function checkActivity() {
 
     const messages = [];
 
-    deleteds.map((userInfo) => {
+    deleteds.map(async (userInfo) => {
         const { user } = userInfo;
-        messages.push({
+        await db.collection("messages").insertOne({
             from: user,
-            to: "Todos",
             text: "sai da sala...",
             type: "status",
-            time: dayjs().format("HH:mm:ss")
         });
     })
-
-    if (messages.length !== 0) {
-        await db.collection("messages")
-            .insertMany(messages);
-    }
 }
 setInterval(checkActivity, 15000);
 app.post("/participants", async (req, res) => {
