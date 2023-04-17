@@ -40,8 +40,10 @@ async function checkActivity() {
         });
     })
 
-    await db.collection("messages")
-        .insertMany(messages);
+    if (messages.length !== 0) {
+        await db.collection("messages")
+            .insertMany(messages);
+    }
 }
 setInterval(checkActivity, 15000);
 app.post("/participants", async (req, res) => {
