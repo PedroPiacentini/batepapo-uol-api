@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv";
-import joi from "joi";
+import joi, { func } from "joi";
 import dayjs from "dayjs";
 
 const app = express();
@@ -18,6 +18,32 @@ mongoClient.connect()
     .then(() => db = mongoClient.db())
     .catch((err) => console.log(err.message));
 
+async function checkActivity() {
+    const time = Date.now() - 10;
+    const deleteds = await db.collection("participants")
+        .find({ lastStatus: { $lt: time } })
+        .toArray();
+
+    await db.collection("participants")
+        .deleteMany({ lastStatus: { $lt: time } });
+
+    const messages = [];
+
+    deleteds.map((userInfo) => {
+        const { user } = userInfo;
+        messages.push({
+            from: user,
+            to: "Todos",
+            text: "sai da sala...",
+            type: "status",
+            time: dayjs().format("HH:mm:ss")
+        });
+    })
+
+    await db.collection("messages")
+        .insertMany(messages);
+}
+setInterval(checkActivity, 15000);
 app.post("/participants", async (req, res) => {
     const newParticipantsSchema = joi.object({
         name: joi.string().required()
