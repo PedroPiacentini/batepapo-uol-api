@@ -24,7 +24,6 @@ app.post("/participants", async (req, res) => {
     });
     const newParticipant = req.body;
     const validation = newParticipantsSchema.validate(newParticipant, { abortEarly: false });
-
     if (validation.error) {
         const errors = validation.error.details.map((detail) => detail.message);
         return res.status(422).send(errors);
@@ -47,7 +46,7 @@ app.post("/participants", async (req, res) => {
         time: dayjs().format("HH:mm:SS")
     });
 
-    return res.status(201);
+    return res.status(201).send(201);
 
 })
 
