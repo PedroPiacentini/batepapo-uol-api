@@ -31,12 +31,14 @@ async function checkActivity() {
 
     deleteds.map(async (userInfo) => {
         const { user } = userInfo;
+        console.log(user)
         await db.collection("messages").insertOne({
             from: user,
             text: "sai da sala...",
             type: "status",
         });
     })
+
 }
 setInterval(checkActivity, 15000);
 app.post("/participants", async (req, res) => {
@@ -123,8 +125,9 @@ app.get("/messages", async (req, res) => {
 
 app.post("/status", async (req, res) => {
     const user = req.headers.user;
+    console.log(user)
     if (!user) return res.status(404).send(404);
-    const participant = db.collection("participants").findOne({ name: user });
+    const participant = await db.collection("participants").findOne({ name: user });
     if (!participant) return res.status(404).send(404);
     await db.collection("participants").updateOne({ name: user }, { $set: { lastStatus: Date.now() } });
 
