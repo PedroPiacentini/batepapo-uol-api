@@ -43,7 +43,7 @@ app.post("/participants", async (req, res) => {
         to: "Todos",
         text: "entra na sala...",
         type: "status",
-        time: dayjs().format("HH:mm:SS")
+        time: dayjs().format("HH:mm:ss")
     });
 
     return res.status(201).send(201);
@@ -58,5 +58,34 @@ app.get("/participants", async (req, res) => {
 
 })
 
+app.post("/messages", async (req, res) => {
+    const newMessagesSchema = joi.object({
+        to: joi.string().required(),
+        text: joi.string().required(),
+        type: joi.string().valid("message", "private_message")
+    });
+    const newMessage = req.body;
+    const { to, text, type } = newMessage;
+    const validation = newMessagesSchema.validate(newMessage, { abortEarly: false });
+    if (validation.error) {
+        const errors = validation.error.details.map((detail) => detail.message);
+        return res.status(422).send(errors);
+    }
+
+    const from = req.headers.user;
+    const participant = await db.collection("participants").findOne({ name: from });
+    if (!participant) return res.status(422).send("Esse usúario não está na sala");
+
+    await db.collection("messages").insertOne({
+        from,
+        to,
+        text,
+        type,
+        time: dayjs().format("HH:mm:ss")
+    });
+
+    return res.status(201).send(201);
+
+})
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Rodando servidor na porta ${PORT}`));
