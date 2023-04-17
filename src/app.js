@@ -62,7 +62,7 @@ app.post("/messages", async (req, res) => {
     const newMessagesSchema = joi.object({
         to: joi.string().required(),
         text: joi.string().required(),
-        type: joi.string().valid("message", "private_message")
+        type: joi.string().valid("message", "private_message").required()
     });
     const newMessage = req.body;
     const { to, text, type } = newMessage;
@@ -95,8 +95,8 @@ app.get("/messages", async (req, res) => {
     const messages = await db.collection("messages").find({ $or: [{ from: user }, { to: user }, { to: "Todos" }] })
     if (limit = undefined) return res.send(messages);
     if (!limit || limit <= 0) return res.status(422).send(422);
-    const limitedMessages = messages.slice(0, limit)
-    return res.send(limitedMessages)
+    const limitedMessages = messages.slice(0, limit);
+    return res.send(limitedMessages);
 })
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Rodando servidor na porta ${PORT}`));
