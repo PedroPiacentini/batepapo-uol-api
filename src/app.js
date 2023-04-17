@@ -90,10 +90,11 @@ app.post("/messages", async (req, res) => {
 
 app.get("/messages", async (req, res) => {
     const user = req.headers.user;
-    const limit = parseInt(req.query.limit);
+    let limit = req.query.limit;
     console.log(req.query.limit);
     const messages = await db.collection("messages").find({ $or: [{ from: user }, { to: user }, { to: "Todos" }] }).toArray();
-    if (limit = undefined) return res.send(messages);
+    if (limit === undefined) return res.send(messages);
+    limit = parseInt(limit);
     if (!limit || limit <= 0) return res.status(422).send(422);
     const limitedMessages = messages.slice(0, limit);
     return res.send(limitedMessages);
@@ -105,7 +106,6 @@ app.post("/status", async (req, res) => {
     const participant = db.collection("participants").findOne({ name: user });
     if (!participant) return res.status(404).send(404);
     await db.collection("participants").updateOne({ name: user }, { $set: { lastStatus: Date.now() } });
-
 
     return res.status(200).send(200);
 })
