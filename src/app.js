@@ -18,8 +18,6 @@ mongoClient.connect()
     .then(() => db = mongoClient.db())
     .catch((err) => console.log(err.message));
 
-
-
 app.post("/participants", async (req, res) => {
     const newParticipantsSchema = joi.object({
         name: joi.string().required()
@@ -51,8 +49,15 @@ app.post("/participants", async (req, res) => {
 
     return res.status(201);
 
+})
 
+app.get("/participants", async (req, res) => {
+    const participants = await db.collection("participants").find().toArray();
+
+    if (participants) return res.send(participants);
+    return res.send([]);
 
 })
+
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Rodando servidor na porta ${PORT}`));
