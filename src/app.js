@@ -87,5 +87,16 @@ app.post("/messages", async (req, res) => {
     return res.status(201).send(201);
 
 })
+
+app.get("/messages", async (req, res) => {
+    const user = req.headers.user;
+    const limit = parseInt(req.query.limit);
+    console.log(req.query.limit);
+    const messages = await db.collection("messages").find({ $or: [{ from: user }, { to: user }, { to: "Todos" }] })
+    if (limit = undefined) return res.send(messages);
+    if (!limit || limit <= 0) return res.status(422).send(422);
+    const limitedMessages = messages.slice(0, limit)
+    return res.send(limitedMessages)
+})
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Rodando servidor na porta ${PORT}`));
