@@ -102,8 +102,9 @@ app.get("/messages", async (req, res) => {
 app.post("/status", async (req, res) => {
     const user = req.headers.user;
     if (!user) return res.status(404).send(404);
-    const participant = await db.collection("participants").findOne({ name: user });
+    const participant = db.collection("participants").findOne({ name: user });
     if (!participant) return res.status(404).send(404);
+    await db.collection("participants").updateOne({ name: user }, { $set: { lastStatus: Date.now() } });
 
 
     return res.status(200).send(200);
