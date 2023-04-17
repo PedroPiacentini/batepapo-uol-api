@@ -23,24 +23,32 @@ async function checkActivity() {
     const deleteds = await db.collection("participants")
         .find({ lastStatus: { $lt: time } })
         .toArray();
-
+    if (deleteds.length === 0) console.log("vazio");
     await db.collection("participants")
         .deleteMany({ lastStatus: { $lt: time } });
 
     const messages = [];
 
     deleteds.map(async (userInfo) => {
-        const { user } = userInfo;
-        console.log(user)
-        await db.collection("messages").insertOne({
-            from: user,
+        const { name } = userInfo;
+        console.log({
+            from: name,
+            to: "Todos",
             text: "sai da sala...",
             type: "status",
+            time: dayjs().format("HH:mm:ss")
+        })
+        await db.collection("messages").insertOne({
+            from: name,
+            to: "Todos",
+            text: "sai da sala...",
+            type: "status",
+            time: dayjs().format("HH:mm:ss")
         });
     })
 
 }
-setInterval(checkActivity, 15000);
+setInterval(checkActivity, 3000);
 app.post("/participants", async (req, res) => {
     const newParticipantsSchema = joi.object({
         name: joi.string().required()
